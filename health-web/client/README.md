@@ -45,17 +45,10 @@ npm start
 (Trình duyệt sẽ tự động mở tại địa chỉ http://localhost:3000)
 
 📤 Hướng Dẫn Cập Nhật Code Lên GitHub
-Mỗi khi bạn thực hiện thay đổi code và muốn lưu trữ lên GitHub, hãy dùng 3 lệnh sau:
+Mỗi khi bạn thực hiện thay đổi code và muốn lưu trữ lên GitHub, hãy dùng 4 lệnh sau:
 
 Gom các thay đổi:
-
-Bash
 git add .
-Ghi chú nội dung thay đổi (Commit):
-
-Bash
-git commit -m "Mô tả nội dung bạn vừa sửa ở đây"
-Đẩy code lên mây (Push):
-
-Bash
+git commit -m "Hoàn thành màn hình Đăng ký và Đăng nhập"
 git push origin main
+git push -u origin main
