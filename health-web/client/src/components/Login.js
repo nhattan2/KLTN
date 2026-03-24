@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../App.css';
-import logoHealth from '../assets/logo-medicare.png'; // Import ảnh logo
+import logoHealth from '../assets/logo-medicare.png';
 
 function Login() {
-    const [loginKey, setLoginKey] = useState(''); // Ô này nhận cả Email, SĐT hoặc CCCD
+    const [loginKey, setLoginKey] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
@@ -13,48 +13,33 @@ function Login() {
         e.preventDefault();
         axios.post('http://localhost:3001/login', { loginKey, password })
             .then(result => {
-                if (result.data === "Success") {
+                if (result.data.status === "Success") {
+                    localStorage.setItem("username", result.data.username);
                     navigate('/dashboard');
                 } else {
-                    alert(result.data);
+                    alert(result.data.message);
                 }
             })
-            .catch(err => {
-                console.log(err);
-                alert("Lỗi kết nối đến server!");
-            });
+            .catch(() => alert("Lỗi kết nối server!"));
     };
 
     return (
         <div className="auth-container">
-            {/* Logo thương hiệu bôi đậm */}
-            <div className="brand-logo-wrapper" onClick={() => navigate('/')}>
-                <img src={logoHealth} alt="Medicare Logo" className="brand-icon" />
+            <div className="brand-logo-wrapper">
+                <img src={logoHealth} alt="Logo" className="brand-icon" />
                 <h1 className="brand-logo-text">MediCare</h1>
             </div>
-
             <div className="auth-card">
                 <h2>Đăng Nhập</h2>
                 <form onSubmit={handleLogin}>
-                    <input type="text"
-                        placeholder="Email, Số điện thoại hoặc số CCCD"
-                        className="auth-input"
-                        onChange={(e) => setLoginKey(e.target.value)} required
-                    />
-                    <input type="password" placeholder="Mật khẩu" className="auth-input"
-                        onChange={(e) => setPassword(e.target.value)} required />
-                    <button type="submit" className="btn-primary">Đăng Nhập</button>
+                    <input type="text" placeholder="Email, SĐT hoặc CCCD" className="auth-input" onChange={(e) => setLoginKey(e.target.value)} required />
+                    <input type="password" placeholder="Mật khẩu" className="auth-input" onChange={(e) => setPassword(e.target.value)} required />
+                    <button type="submit" className="btn-primary">Vào Hệ Thống</button>
                 </form>
-                <div style={{ marginTop: '15px' }}>
-                    <span className="auth-footer-link">Quên mật khẩu?</span>
-                </div>
                 <div className="divider"></div>
-                <button className="btn-secondary" onClick={() => navigate('/register')}>
-                    Tạo tài khoản mới
-                </button>
+                <button className="btn-secondary" onClick={() => navigate('/register')}>Tạo tài khoản mới</button>
             </div>
         </div>
     );
 }
-
 export default Login;

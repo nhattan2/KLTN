@@ -1,71 +1,42 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import '../App.css';
-import logoHealth from '../assets/logo-medicare.png'; 
 
 function Register() {
-    const [formData, setFormData] = useState({
-        username: '', email: '', phone: '', cccd: '', password: ''
-    });
+    const [formData, setFormData] = useState({ username: '', email: '', phone: '', cccd: '', password: '' });
     const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        // Lọc bỏ các trường rỗng trước khi gửi
+        const dataToSend = {};
+        Object.keys(formData).forEach(key => {
+            if (formData[key].trim() !== "") dataToSend[key] = formData[key];
+        });
 
-        // Kiểm tra xem đã nhập ít nhất 1 trong 3 thông tin định danh chưa
-        if (!formData.email && !formData.phone && !formData.cccd) {
-            alert("Vui lòng nhập ít nhất Email, Số điện thoại hoặc Số CCCD!");
-            return;
+        if (Object.keys(dataToSend).length < 3) { // Phải có tên, mật khẩu và ít nhất 1 thông tin định danh
+            alert("Vui lòng nhập đầy đủ thông tin định danh!"); return;
         }
 
-        axios.post('http://localhost:3001/register', formData)
-            .then(result => {
-                alert("Đăng ký thành công!");
-                navigate('/login');
-            })
-            .catch(err => {
-                console.log(err);
-                alert("Thông tin này đã được sử dụng hoặc lỗi hệ thống!");
-            });
+        axios.post('http://localhost:3001/register', dataToSend)
+            .then(() => { alert("Đăng ký thành công!"); navigate('/login'); })
+            .catch(() => alert("Thông tin này đã được sử dụng!"));
     };
 
     return (
         <div className="auth-container">
-            {/* Logo thương hiệu bôi đậm */}
-            <div className="brand-logo-wrapper" onClick={() => navigate('/')}>
-                <img src={logoHealth} alt="Medicare Logo" className="brand-icon" />
-                <h1 className="brand-logo-text">MediCare</h1>
-            </div>
-
-            <div className="auth-card register-card"> {/* Thêm class riêng cho card rộng hơn */}
-                <h2>Tạo tài khoản mới</h2>
+            <div className="auth-card">
+                <h2>Tạo tài khoản</h2>
                 <form onSubmit={handleSubmit}>
-                    <input type="text" placeholder="Họ và tên" className="auth-input" required
-                        onChange={(e) => setFormData({ ...formData, username: e.target.value })} />
-                    <input type="email" placeholder="Địa chỉ Email (Ví dụ: tan@gmail.com)" className="auth-input"
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-
-                    <input type="text" placeholder="Số điện thoại (Ví dụ: 0905...)" className="auth-input"
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
-
-                    <input type="text" placeholder="Số CCCD (Ví dụ: 048...)" className="auth-input"
-                        onChange={(e) => setFormData({ ...formData, cccd: e.target.value })} />
-
-                    <input type="password" placeholder="Mật khẩu mới" className="auth-input" required
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
-
-                    <button type="submit" className="btn-secondary" style={{ width: '100%', height: '40px', fontSize: '1.2rem', marginTop: '10px' }}>
-                        Đăng Ký
-                    </button>
+                    <input className="auth-input" placeholder="Họ tên" onChange={e => setFormData({ ...formData, username: e.target.value })} required />
+                    <input className="auth-input" placeholder="Email" onChange={e => setFormData({ ...formData, email: e.target.value })} />
+                    <input className="auth-input" placeholder="SĐT" onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                    <input className="auth-input" placeholder="CCCD" onChange={e => setFormData({ ...formData, cccd: e.target.value })} />
+                    <input className="auth-input" type="password" placeholder="Mật khẩu" onChange={e => setFormData({ ...formData, password: e.target.value })} required />
+                    <button type="submit" className="btn-secondary" style={{ width: '100%', height: '52px' }}>Đăng Ký</button>
                 </form>
-                <div className="divider"></div>
-                <span className="auth-footer-link" onClick={() => navigate('/login')}>
-                    Bạn đã có tài khoản rồi?
-                </span>
             </div>
         </div>
     );
 }
-
 export default Register;
