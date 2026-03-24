@@ -1,19 +1,20 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
+import Dashboard from './components/Dashboard';
 
 function App() {
   return (
-    <Router>
-      <nav style={{ textAlign: 'center', padding: '20px' }}>
-        <Link to="/login" style={{ margin: '10px' }}>Đăng nhập</Link>
-        <Link to="/register" style={{ margin: '10px' }}>Đăng ký</Link>
-      </nav>
+    <BrowserRouter>
       <Routes>
+        {/* Mặc định vào trang Login */}
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 
