@@ -1,70 +1,61 @@
-# Getting Started with Create React App
+🏥 MediCare - Hệ Thống Quản Lý Y Tế Thông Minh
+MediCare là một ứng dụng web hiện đại được phát triển nhằm tối ưu hóa trải nghiệm chăm sóc sức khỏe cho sinh viên và người dùng. Hệ thống tích hợp các công nghệ mới nhất để cung cấp giải pháp đăng ký, theo dõi sức khỏe và tư vấn AI trực tuyến.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+🚀 Tính Năng Nổi Bật
+Đăng ký đa phương thức: Cho phép đăng ký/đăng nhập linh hoạt bằng Email, Số điện thoại hoặc CCCD.
 
-## Available Scripts
+Giao diện Modern Glassmorphism: Thiết kế chuyên nghiệp, hiện đại với hiệu ứng kính mờ và Mesh Gradient.
 
-In the project directory, you can run:
+Dashboard Cá Nhân Hóa: Theo dõi các chỉ số sức khỏe (nhịp tim, huyết áp, nhiệt độ) thời gian thực.
 
-### `npm start`
+Tư Vấn AI (Coming Soon): Tích hợp Google Gemini API để hỗ trợ tư vấn sức khỏe tức thì.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+🛠️ Công Nghệ Sử Dụng
+Frontend: React.js, CSS3 (Modern Flexbox/Grid), Axios.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Backend: Node.js, Express.js.
 
-### `npm test`
+Database: MongoDB (Local/Atlas).
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Tools: Git, GitHub, Postman.
 
-### `npm run build`
+📦 Hướng Dẫn Cài Đặt & Chạy Code
+Để chạy dự án này trên máy tính cá nhân, bạn thực hiện các bước sau:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. Tải code về máy (Clone)
+Mở Terminal/Command Prompt và gõ:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Bash
+git clone https://github.com/nhattan2/KLTN.git
+cd KLTN/health-web
+2. Cài đặt Backend
+Bash
+cd server
+npm install
+node index.js
+(Server sẽ chạy tại cổng 3001)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. Cài đặt Frontend
+Mở một Terminal mới:
 
-### `npm run eject`
+Bash
+cd client
+npm install
+npm start
+(Trình duyệt sẽ tự động mở tại địa chỉ http://localhost:3000)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+📤 Hướng Dẫn Cập Nhật Code Lên GitHub
+Mỗi khi bạn thực hiện thay đổi code và muốn lưu trữ lên GitHub, hãy dùng 3 lệnh sau:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Gom các thay đổi:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Bash
+git add .
+Ghi chú nội dung thay đổi (Commit):
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Bash
+git commit -m "Mô tả nội dung bạn vừa sửa ở đây"
+Đẩy code lên mây (Push):
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Bash
+git push origin main
