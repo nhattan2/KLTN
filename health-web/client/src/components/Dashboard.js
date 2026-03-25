@@ -59,7 +59,9 @@ function Dashboard() {
                     <p style={{ marginTop: '12px', opacity: '0.9', maxWidth: '550px', fontSize: '1.1rem' }}>
                         Mô tả triệu chứng của bạn để nhận tư vấn sức khỏe tức thì từ trí tuệ nhân tạo hàng đầu Duy Tân.
                     </p>
-                    <button className="dashboard-ai-btn">Hỏi AI ngay</button>
+                    <button className="dashboard-ai-btn" onClick={() => navigate('/ai-consult')}>
+                        Hỏi AI ngay
+                    </button>
                 </section>
             </main>
         </div>
