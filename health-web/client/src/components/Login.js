@@ -30,7 +30,7 @@ function Login() {
                 </div>
                 <h2>Đăng Nhập</h2>
                 <form onSubmit={handleLogin} style={{ marginTop: '1.5rem' }}>
-                    <input className="auth-input" placeholder="Email, SĐT hoặc CCCD"
+                    <input className="auth-input" placeholder="Email hoặc Số điện thoại"
                         onChange={e => setLoginKey(e.target.value)} required />
                     <input className="auth-input" type="password" placeholder="Mật khẩu"
                         onChange={e => setPassword(e.target.value)} required style={{ marginTop: '10px' }} />
