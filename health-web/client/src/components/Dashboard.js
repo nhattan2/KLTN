@@ -20,18 +20,20 @@ function Dashboard() {
             <aside className="dashboard-sidebar">
                 <h2 className="brand-name">MediCare</h2>
                 <nav className="sidebar-nav">
-                    <div className="nav-item active" onClick={() => navigate('/dashboard')}>🏠 Tổng quan</div>
-                    <div className="nav-item" onClick={() => navigate('/ai-consult')}>🤖 Tư vấn bằng AI</div>
-                    <div className="nav-item" onClick={() => navigate('/update-health')}>📈 Cập nhật chỉ số</div>
-                    <div className="nav-item">📋 Hồ sơ bệnh án</div>
-                    <div className="nav-item">👨‍⚕️ Quản lý bác sĩ</div>
+                    <div className="nav-item active" onClick={() => navigate('/dashboard')}>Tổng quan</div>
+                    <div className="nav-item" onClick={() => navigate('/ai-consult')}>Tư vấn bằng AI</div>
+                    <div className="nav-item" onClick={() => navigate('/update-health')}>Cập nhật chỉ số</div>
+                    <div className="nav-item">Hồ sơ bệnh án</div>
+                    <div className="nav-item">Quản lý bác sĩ</div>
+                    <div className="nav-item">Tạo hồ sơ bệnh án</div>
+                    <div className="nav-item">Quản lý bác sĩ</div>
                 </nav>
                 <button className="logout-btn" onClick={() => { localStorage.clear(); navigate('/login'); }}>Đăng xuất</button>
             </aside>
 
             <main className="dashboard-main">
                 <header className="main-header">
-                    <h1>Chào bạn, {username}! 👋</h1>
+                    <h1>Chào bạn, {username}</h1>
                 </header>
 
                 <section className="ai-banner" onClick={() => navigate('/ai-consult')}>

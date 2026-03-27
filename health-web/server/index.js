@@ -117,8 +117,11 @@ app.post('/api/update-health', async (req, res) => {
         let healthStatus = "Bình thường";
         if (systolic >= 140 || heartRate > 100) healthStatus = "Cảnh báo: Cao";
         else if (systolic < 90 || heartRate < 60) healthStatus = "Cảnh báo: Thấp";
-
-        if (bloodSugar > 125) healthStatus += " & Đường huyết cao";
+        if (bloodSugar > 125) {
+            healthStatus += " & Nguy cơ Tiểu đường";
+        } else if (bloodSugar < 70) {
+            healthStatus += " & Hạ đường huyết cấp";
+        }
 
         const newRecord = await HealthModel.create({
             userId: username,
