@@ -148,3 +148,25 @@
 .dashboard-ai-btn:hover {
     transform: scale(1.05);
 }
+.brand-name { color: #2563eb; font-size: 1.8rem; margin-bottom: 2rem; font-weight: 800; }
+.sidebar-nav { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.nav-item { 
+    padding: 15px; border-radius: 12px; cursor: pointer; color: #64748b; 
+    font-weight: 600; transition: 0.3s; 
+}
+.nav-item:hover, .nav-item.active { background: #eff6ff; color: #2563eb; }
+.logout-btn { background: #fee2e2; color: #ef4444; border: none; padding: 12px; border-radius: 10px; cursor: pointer; }
+
+.main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.btn-add { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.stat-card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.stat-value { font-size: 2rem; font-weight: 800; margin: 10px 0; }
+.stat-status { color: #10b981; font-size: 0.9rem; font-weight: 600; }
+
+.ai-banner { 
+    margin-top: 2rem; background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+    padding: 40px; border-radius: 24px; color: white; cursor: pointer;
+}
+.ai-go-btn { background: white; color: #2563eb; border: none; padding: 12px 25px; border-radius: 10px; font-weight: 700; margin-top: 15px; }

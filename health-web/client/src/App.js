@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import AIConsult from './components/AIConsult';
+import UpdateHealth from './components/UpdateHealth';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/ai-consult" element={<AIConsult />} />
+        <Route path="/update-health" element={<UpdateHealth />} />
       </Routes>
     </BrowserRouter>
   );
