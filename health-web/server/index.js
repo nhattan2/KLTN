@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-// Sửa lại tên thư viện chuẩn của Google
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const app = express();
@@ -13,17 +12,18 @@ mongoose.connect('mongodb://127.0.0.1:27017/health-web')
     .then(() => console.log("✅ Đã kết nối MongoDB LOCAL thành công!"))
     .catch(err => console.log("❌ Lỗi kết nối MongoDB Local: ", err));
 
-// 2. Định nghĩa Schema và Model
+// 2. Định nghĩa Schema và Model (Đã thêm trường role)
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
     email: { type: String, unique: true, sparse: true },
     phone: { type: String, unique: true, sparse: true },
     cccd: { type: String, unique: true, sparse: true },
-    password: { type: String, required: true }
+    password: { type: String, required: true },
+    // THÊM DÒNG NÀY: Tự động gán quyền khi tạo mới
+    role: { type: String, default: 'user' }
 });
 const UserModel = mongoose.model("users", UserSchema);
 
-// Model sức khỏe (Phải khai báo hoặc require từ file riêng)
 const HealthSchema = new mongoose.Schema({
     userId: String,
     heartRate: Number,
@@ -35,7 +35,7 @@ const HealthSchema = new mongoose.Schema({
 });
 const HealthModel = mongoose.model("health_records", HealthSchema);
 
-// 3. API Đăng ký & Đăng nhập
+// 3. API Đăng ký & Đăng nhập (Đã bổ sung Role)
 app.post('/register', (req, res) => {
     UserModel.create(req.body)
         .then(user => res.json({ status: "success", username: user.username }))
@@ -46,12 +46,32 @@ app.post('/login', (req, res) => {
     const { loginKey, password } = req.body;
     UserModel.findOne({ $or: [{ email: loginKey }, { phone: loginKey }, { cccd: loginKey }] })
         .then(user => {
-            if (user && user.password === password) res.json({ status: "Success", username: user.username });
-            else res.json({ status: "Error", message: "Sai tài khoản hoặc mật khẩu!" });
+            if (user && user.password === password) {
+                // QUAN TRỌNG: Gửi cả role về cho Frontend
+                res.json({
+                    status: "Success",
+                    username: user.username,
+                    role: user.role || 'user'
+                });
+            } else {
+                res.json({ status: "Error", message: "Sai tài khoản hoặc mật khẩu!" });
+            }
         }).catch(err => res.status(500).json({ status: "Error", message: "Lỗi Server!" }));
 });
 
-// 4. CƠ CHẾ XOAY VÒNG API KEY
+// 4. API THỐNG KÊ DÀNH CHO ADMIN
+app.get('/api/admin/stats', async (req, res) => {
+    try {
+        const userCount = await UserModel.countDocuments({ role: 'user' });
+        const doctorCount = await UserModel.countDocuments({ role: 'doctor' });
+        const recordCount = await HealthModel.countDocuments();
+        res.json({ userCount, doctorCount, recordCount });
+    } catch (err) {
+        res.status(500).json({ error: "Lỗi lấy thống kê hệ thống" });
+    }
+});
+
+// 5. CƠ CHẾ XOAY VÒNG API KEY (Giữ nguyên của con)
 const apiKeys = [
     "AIzaSyBnOsJ3gUQWv5oVaU3JwDV39nWde1zPGpY",
     "AIzaSyDPQh6Hq54xTJgWNS7Ny73eLINNdpBkAd0",
@@ -59,7 +79,6 @@ const apiKeys = [
 ];
 let currentKeyIndex = 0;
 
-// API Tư vấn AI (Gemini 1.5 Flash)
 app.post('/api/ai-consult', async (req, res) => {
     const history = req.body.history || [];
     const formattedContents = history.map(msg => ({
@@ -80,12 +99,10 @@ app.post('/api/ai-consult', async (req, res) => {
             const response = await result.response;
             const cleanReply = response.text().replace(/[*#_`~]/g, '');
 
-            console.log(`✅ Thành công với Key ${currentKeyIndex + 1}`);
             currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
             return res.json({ reply: cleanReply });
 
         } catch (err) {
-            console.error(`⚠️ Key ${currentKeyIndex + 1} lỗi Quota.`);
             attempts++;
             currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
         }
@@ -93,35 +110,28 @@ app.post('/api/ai-consult', async (req, res) => {
     res.status(500).json({ error: "Hệ thống AI đang quá tải!" });
 });
 
-// 5. API Cập nhật sức khỏe (Tự động tính toán)
+// 6. API Cập nhật sức khỏe (Giữ nguyên logic của con)
 app.post('/api/update-health', async (req, res) => {
     try {
         const { username, heartRate, bloodPressure, bloodSugar } = req.body;
-
-        // CHỖ NÀY NÈ NÍ: Xử lý nếu người dùng chỉ nhập 1 con số
         let systolic = 0;
         let pulsePressure = 0;
 
         if (bloodPressure.includes('/')) {
-            // Nếu nhập đúng kiểu 120/80
             const bpParts = bloodPressure.split('/');
             systolic = parseInt(bpParts[0]);
             pulsePressure = systolic - parseInt(bpParts[1]);
         } else {
-            // Nếu chỉ nhập đúng 1 số (ví dụ: 120)
             systolic = parseInt(bloodPressure);
-            pulsePressure = 40; // Gán mặc định hoặc để 0 tùy ý con
+            pulsePressure = 40;
         }
 
-        // Tự động phân loại dựa trên con số duy nhất đó
         let healthStatus = "Bình thường";
         if (systolic >= 140 || heartRate > 100) healthStatus = "Cảnh báo: Cao";
         else if (systolic < 90 || heartRate < 60) healthStatus = "Cảnh báo: Thấp";
-        if (bloodSugar > 125) {
-            healthStatus += " & Nguy cơ Tiểu đường";
-        } else if (bloodSugar < 70) {
-            healthStatus += " & Hạ đường huyết cấp";
-        }
+
+        if (bloodSugar > 125) healthStatus += " & Nguy cơ Tiểu đường";
+        else if (bloodSugar < 70) healthStatus += " & Hạ đường huyết cấp";
 
         const newRecord = await HealthModel.create({
             userId: username,
@@ -133,13 +143,11 @@ app.post('/api/update-health', async (req, res) => {
         });
 
         res.json({ success: true, data: newRecord });
-        console.log("Đã lưu cho:", username);
     } catch (error) {
-        console.error("Lỗi Backend:", error.message);
         res.status(500).json({ error: "Lỗi lưu dữ liệu!" });
     }
 });
-// API Lấy chỉ số sức khỏe mới nhất để hiện lên Dashboard
+
 app.get('/api/get-health/:username', async (req, res) => {
     try {
         const record = await HealthModel.findOne({ userId: req.params.username }).sort({ createdAt: -1 });
@@ -149,5 +157,4 @@ app.get('/api/get-health/:username', async (req, res) => {
     }
 });
 
-// 6. CHẠY SERVER
-app.listen(3001, () => console.log("Server đang chạy tại cổng 3001"));
+app.listen(3001, () => console.log("🚀 Server MediCare đang chạy tại cổng 3001"));

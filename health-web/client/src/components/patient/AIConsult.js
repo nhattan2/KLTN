@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'; // Phải thêm useEffect ở đây
 import { useNavigate, useLocation } from 'react-router-dom'; // Phải thêm useLocation ở đây
 import axios from 'axios';
-import '../App.css';
+import '../../App.css';
 
 function AIConsult() {
     const [input, setInput] = useState('');

@@ -14,10 +14,17 @@ function Login() {
         axios.post('http://localhost:3001/login', { loginKey, password })
             .then(res => {
                 if (res.data.status === "Success") {
+                    // LƯU THÔNG TIN QUAN TRỌNG VÀO LOCALSTORAGE
                     localStorage.setItem("username", res.data.username);
+                    localStorage.setItem("role", res.data.role); // Dòng này giúp Dashboard phân quyền
+
+                    // Chuyển hướng người dùng vào Dashboard
                     navigate('/dashboard');
-                } else alert(res.data.message);
-            }).catch(() => alert("Lỗi kết nối!"));
+                } else {
+                    alert(res.data.message);
+                }
+            })
+            .catch(() => alert("Lỗi kết nối server rồi Tân ơi!"));
     };
 
     return (
@@ -30,11 +37,26 @@ function Login() {
                 </div>
                 <h2>Đăng Nhập</h2>
                 <form onSubmit={handleLogin} style={{ marginTop: '1.5rem' }}>
-                    <input className="auth-input" placeholder="Email hoặc Số điện thoại"
-                        onChange={e => setLoginKey(e.target.value)} required />
-                    <input className="auth-input" type="password" placeholder="Mật khẩu"
-                        onChange={e => setPassword(e.target.value)} required style={{ marginTop: '10px' }} />
-                    <button type="submit" className="btn-primary" style={{ marginTop: '20px' }}>Vào Hệ Thống</button>
+                    <div className="auth-input-group">
+                        <input
+                            className="auth-input"
+                            placeholder="Email hoặc Số điện thoại"
+                            onChange={e => setLoginKey(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="auth-input-group" style={{ marginTop: '10px' }}>
+                        <input
+                            className="auth-input"
+                            type="password"
+                            placeholder="Mật khẩu"
+                            onChange={e => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="btn-primary" style={{ marginTop: '20px' }}>
+                        Vào Hệ Thống
+                    </button>
                 </form>
                 <p style={{ marginTop: '15px', fontSize: '0.9rem' }}>
                     Chưa có tài khoản? <span onClick={() => navigate('/register')} style={{ color: '#2563eb', cursor: 'pointer', fontWeight: '600' }}>Đăng ký ngay</span>
@@ -43,4 +65,5 @@ function Login() {
         </div>
     );
 }
+
 export default Login;
