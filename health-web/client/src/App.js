@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 
+
 // Import từ thư mục patient
 import AIConsult from './components/patient/AIConsult';
 import UpdateHealth from './components/patient/UpdateHealth';
@@ -14,7 +15,6 @@ import AdminStats from './components/admin/AdminStats';
 
 // Import từ thư mục doctor 
 import DoctorHome from './components/doctor/DoctorHome';
-
 function App() {
   return (
     <BrowserRouter>
@@ -35,6 +35,7 @@ function App() {
 
         {/* Tuyến đường cho Bác sĩ */}
         <Route path="/doctor/home" element={<DoctorHome />} />
+
       </Routes>
     </BrowserRouter>
   );
