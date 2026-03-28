@@ -14,6 +14,7 @@ import MyRecords from './components/patient/MyRecords';
 // Import từ thư mục admin 
 import CreateDoctor from './components/admin/CreateDoctor';
 import AdminStats from './components/admin/AdminStats';
+import AdminDoctors from './components/admin/AdminDoctors';
 
 // Import từ thư mục doctor 
 import DoctorHome from './components/doctor/DoctorHome';
@@ -37,6 +38,7 @@ function App() {
         {/* Tuyến đường cho Admin */}
         <Route path="/admin/create-doctor" element={<CreateDoctor />} />
         <Route path="/admin/stats" element={<AdminStats />} />
+        <Route path="/admin/doctors" element={<AdminDoctors />} />
 
         {/* Tuyến đường cho Bác sĩ */}
         <Route path="/doctor/home" element={<DoctorHome />} />

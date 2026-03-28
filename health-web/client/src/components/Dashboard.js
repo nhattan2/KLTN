@@ -40,6 +40,7 @@ function Dashboard() {
                         <>
                             <div className="nav-item" style={{ color: '#d97706' }} onClick={() => navigate('/admin/create-doctor')}>Tạo tài khoản BS</div>
                             <div className="nav-item" style={{ color: '#d97706' }} onClick={() => navigate('/admin/stats')}>Thống kê hệ thống</div>
+                            <div className="nav-item" style={{ color: '#d97706' }} onClick={() => navigate('/admin/doctors')}>Quản lý Bác sĩ</div>
                         </>
                     )}
 
