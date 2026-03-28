@@ -8,6 +8,8 @@ import Dashboard from './components/Dashboard';
 // Import từ thư mục patient
 import AIConsult from './components/patient/AIConsult';
 import UpdateHealth from './components/patient/UpdateHealth';
+import CreateMedicalRecord from './components/patient/CreateMedicalRecord';
+import MyRecords from './components/patient/MyRecords';
 
 // Import từ thư mục admin 
 import CreateDoctor from './components/admin/CreateDoctor';
@@ -28,6 +30,9 @@ function App() {
         {/* Tuyến đường cho Bệnh nhân */}
         <Route path="/ai-consult" element={<AIConsult />} />
         <Route path="/update-health" element={<UpdateHealth />} />
+        <Route path="/create-record" element={<CreateMedicalRecord />} />
+        <Route path="/my-records" element={<MyRecords />} />
+
 
         {/* Tuyến đường cho Admin */}
         <Route path="/admin/create-doctor" element={<CreateDoctor />} />

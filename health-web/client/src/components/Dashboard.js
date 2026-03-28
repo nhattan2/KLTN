@@ -33,32 +33,34 @@ function Dashboard() {
                 <h2 className="brand-name">MediCare</h2>
 
                 <nav className="sidebar-nav">
-                    <div className="nav-item active" onClick={() => navigate('/dashboard')}>🏠 Tổng quan</div>
+                    <div className="nav-item active" onClick={() => navigate('/dashboard')}>Tổng quan</div>
 
                     {/* MENU CHO ADMIN */}
                     {role === 'admin' && (
                         <>
-                            <div className="nav-item" style={{ color: '#d97706' }} onClick={() => navigate('/admin/create-doctor')}>➕ Tạo tài khoản BS</div>
-                            <div className="nav-item" style={{ color: '#d97706' }} onClick={() => navigate('/admin/stats')}>📊 Thống kê hệ thống</div>
+                            <div className="nav-item" style={{ color: '#d97706' }} onClick={() => navigate('/admin/create-doctor')}>Tạo tài khoản BS</div>
+                            <div className="nav-item" style={{ color: '#d97706' }} onClick={() => navigate('/admin/stats')}>Thống kê hệ thống</div>
                         </>
                     )}
 
                     {/* MENU CHO BÁC SĨ */}
                     {role === 'doctor' && (
                         <>
-                            <div className="nav-item" style={{ color: '#10b981' }} onClick={() => navigate('/doctor/appointments')}>📅 Lịch hẹn hôm nay</div>
-                            <div className="nav-item" style={{ color: '#10b981' }}>📋 Quản lý bệnh nhân</div>
+                            <div className="nav-item" style={{ color: '#10b981' }} onClick={() => navigate('/doctor/appointments')}>Lịch hẹn hôm nay</div>
+                            <div className="nav-item" style={{ color: '#10b981' }} onClick={() => navigate('/doctor/patients')}>Quản lý bệnh nhân</div>
                         </>
                     )}
 
                     {/* MENU CHO BỆNH NHÂN */}
                     {role === 'user' && (
                         <>
-                            <div className="nav-item" onClick={() => navigate('/update-health')}>📈 Cập nhật sức khỏe</div>
-                            <div className="nav-item" onClick={() => navigate('/ai-consult')}>🤖 Tư vấn AI Gemini</div>
-                            <div className="nav-item">📁 Hồ sơ của tôi</div>
+                            <div className="nav-item" onClick={() => navigate('/update-health')}>Cập nhật sức khỏe</div>
+                            <div className="nav-item" onClick={() => navigate('/ai-consult')}>Tư vấn AI Gemini</div>
+                            <div className="nav-item" onClick={() => navigate('/my-records')}>Hồ sơ của tôi</div>
+                            <div className="nav-item" onClick={() => navigate('/create-record')}>Tạo hồ sơ bệnh án</div>
                         </>
                     )}
+
                 </nav>
 
                 <button className="logout-btn" onClick={() => { localStorage.clear(); navigate('/login'); }}>Đăng xuất</button>

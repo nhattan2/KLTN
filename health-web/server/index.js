@@ -9,21 +9,41 @@ app.use(cors());
 
 // 1. Kết nối MongoDB Local
 mongoose.connect('mongodb://127.0.0.1:27017/health-web')
-    .then(() => console.log("✅ Đã kết nối MongoDB LOCAL thành công!"))
-    .catch(err => console.log("❌ Lỗi kết nối MongoDB Local: ", err));
+    .then(() => console.log("✅ Hệ thống Medicare đã kết nối Database thành công!"))
+    .catch(err => console.log("❌ Lỗi kết nối Database: ", err));
 
-// 2. Định nghĩa Schema và Model (Đã thêm trường role)
+// 2. Định nghĩa các Model (Schema)
+
+// Model Người dùng (Có thêm role mặc định)
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
     email: { type: String, unique: true, sparse: true },
     phone: { type: String, unique: true, sparse: true },
     cccd: { type: String, unique: true, sparse: true },
     password: { type: String, required: true },
-    // THÊM DÒNG NÀY: Tự động gán quyền khi tạo mới
     role: { type: String, default: 'user' }
 });
 const UserModel = mongoose.model("users", UserSchema);
 
+// Model Hồ sơ bệnh án chi tiết (Khớp với CreateMedicalRecord.js)
+const MedicalRecordDetailSchema = new mongoose.Schema({
+    username: String,
+    fullName: String,
+    dob: String,
+    gender: String,
+    address: String,
+    phone: String,
+    email: String,
+    cccd: String,
+    medicalHistory: String,
+    allergies: String,
+    currentMedications: String,
+    familyHistory: String,
+    notes: String,
+    createdAt: { type: Date, default: Date.now }
+});
+const MedicalRecordDetailModel = mongoose.model("medical_records_details", MedicalRecordDetailSchema);
+// Model Chỉ số sức khỏe nhanh (Dashboard)
 const HealthSchema = new mongoose.Schema({
     userId: String,
     heartRate: Number,
@@ -35,7 +55,8 @@ const HealthSchema = new mongoose.Schema({
 });
 const HealthModel = mongoose.model("health_records", HealthSchema);
 
-// 3. API Đăng ký & Đăng nhập (Đã bổ sung Role)
+// 3. API Đăng nhập & Đăng ký
+
 app.post('/register', (req, res) => {
     UserModel.create(req.body)
         .then(user => res.json({ status: "success", username: user.username }))
@@ -47,7 +68,7 @@ app.post('/login', (req, res) => {
     UserModel.findOne({ $or: [{ email: loginKey }, { phone: loginKey }, { cccd: loginKey }] })
         .then(user => {
             if (user && user.password === password) {
-                // QUAN TRỌNG: Gửi cả role về cho Frontend
+                // Trả về role để Frontend lưu vào localStorage
                 res.json({
                     status: "Success",
                     username: user.username,
@@ -56,10 +77,22 @@ app.post('/login', (req, res) => {
             } else {
                 res.json({ status: "Error", message: "Sai tài khoản hoặc mật khẩu!" });
             }
-        }).catch(err => res.status(500).json({ status: "Error", message: "Lỗi Server!" }));
+        }).catch(() => res.status(500).json({ status: "Error", message: "Lỗi Server!" }));
 });
 
-// 4. API THỐNG KÊ DÀNH CHO ADMIN
+// 4. API Hồ sơ bệnh án & Thống kê
+
+// Lưu hồ sơ bệnh án chi tiết
+app.post('/api/create-medical-record', async (req, res) => {
+    try {
+        const newRecord = await MedicalRecordDetailModel.create(req.body);
+        res.json({ success: true, message: "Lưu hồ sơ thành công!", data: newRecord });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Không thể lưu hồ sơ." });
+    }
+});
+
+// Lấy thống kê cho Admin
 app.get('/api/admin/stats', async (req, res) => {
     try {
         const userCount = await UserModel.countDocuments({ role: 'user' });
@@ -67,11 +100,12 @@ app.get('/api/admin/stats', async (req, res) => {
         const recordCount = await HealthModel.countDocuments();
         res.json({ userCount, doctorCount, recordCount });
     } catch (err) {
-        res.status(500).json({ error: "Lỗi lấy thống kê hệ thống" });
+        res.status(500).json({ error: "Lỗi lấy thống kê" });
     }
 });
 
-// 5. CƠ CHẾ XOAY VÒNG API KEY (Giữ nguyên của con)
+// 5. API Tư vấn AI Gemini (Xoay vòng Key)
+
 const apiKeys = [
     "AIzaSyBnOsJ3gUQWv5oVaU3JwDV39nWde1zPGpY",
     "AIzaSyDPQh6Hq54xTJgWNS7Ny73eLINNdpBkAd0",
@@ -101,50 +135,40 @@ app.post('/api/ai-consult', async (req, res) => {
 
             currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
             return res.json({ reply: cleanReply });
-
         } catch (err) {
             attempts++;
             currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
         }
     }
-    res.status(500).json({ error: "Hệ thống AI đang quá tải!" });
+    res.status(500).json({ error: "AI đang bận, thử lại sau nhé Tân!" });
 });
 
-// 6. API Cập nhật sức khỏe (Giữ nguyên logic của con)
+// 6. API Cập nhật & Lấy chỉ số sức khỏe
+
 app.post('/api/update-health', async (req, res) => {
     try {
         const { username, heartRate, bloodPressure, bloodSugar } = req.body;
         let systolic = 0;
-        let pulsePressure = 0;
-
         if (bloodPressure.includes('/')) {
-            const bpParts = bloodPressure.split('/');
-            systolic = parseInt(bpParts[0]);
-            pulsePressure = systolic - parseInt(bpParts[1]);
+            systolic = parseInt(bloodPressure.split('/')[0]);
         } else {
             systolic = parseInt(bloodPressure);
-            pulsePressure = 40;
         }
 
         let healthStatus = "Bình thường";
         if (systolic >= 140 || heartRate > 100) healthStatus = "Cảnh báo: Cao";
         else if (systolic < 90 || heartRate < 60) healthStatus = "Cảnh báo: Thấp";
 
-        if (bloodSugar > 125) healthStatus += " & Nguy cơ Tiểu đường";
-        else if (bloodSugar < 70) healthStatus += " & Hạ đường huyết cấp";
-
         const newRecord = await HealthModel.create({
             userId: username,
             heartRate,
             bloodPressure: bloodPressure.includes('/') ? bloodPressure : `${bloodPressure}/--`,
             bloodSugar,
-            pulsePressure,
             status: healthStatus
         });
-
         res.json({ success: true, data: newRecord });
     } catch (error) {
-        res.status(500).json({ error: "Lỗi lưu dữ liệu!" });
+        res.status(500).json({ error: "Lỗi lưu chỉ số!" });
     }
 });
 
@@ -154,6 +178,22 @@ app.get('/api/get-health/:username', async (req, res) => {
         res.json(record || { heartRate: '--', bloodPressure: '--/--', bloodSugar: '--', status: 'Chưa có dữ liệu' });
     } catch (error) {
         res.status(500).json({ error: "Lỗi lấy dữ liệu" });
+    }
+});
+
+app.get('/api/get-medical-record/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+        // Tìm hồ sơ mới nhất của username này
+        const record = await MedicalRecordDetailModel.findOne({ username }).sort({ createdAt: -1 });
+
+        if (record) {
+            res.json(record);
+        } else {
+            res.status(404).json({ message: "Không tìm thấy hồ sơ" });
+        }
+    } catch (error) {
+        res.status(500).json({ error: "Lỗi Server" });
     }
 });
 
