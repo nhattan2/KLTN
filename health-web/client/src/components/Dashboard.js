@@ -25,7 +25,7 @@ function Dashboard() {
                     <div className="nav-item" onClick={() => navigate('/update-health')}>Cập nhật chỉ số</div>
                     <div className="nav-item">Hồ sơ bệnh án</div>
                     <div className="nav-item">Quản lý bác sĩ</div>
-                    <div className="nav-item">Tạo hồ sơ bệnh án</div>
+                    <div className="nav-item" onClick={() => navigate('/create-record')}>Tạo hồ sơ bệnh án</div>
                     <div className="nav-item">Quản lý bác sĩ</div>
                 </nav>
                 <button className="logout-btn" onClick={() => { localStorage.clear(); navigate('/login'); }}>Đăng xuất</button>
