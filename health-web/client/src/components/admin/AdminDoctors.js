@@ -6,18 +6,19 @@ import { useNavigate } from 'react-router-dom';
 function AdminDoctors() {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState('');
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Lấy danh sách bác sĩ từ backend
   const fetchDoctors = async () => {
+    setLoading(true);
+    setError('');
     try {
-      setLoading(true);
       const res = await axios.get('http://localhost:3001/api/admin/doctors');
-      // mong backend trả về { success: true, data: [...] } hoặc mảng trực tiếp
-      const list = res.data && res.data.data ? res.data.data : res.data;
-      setDoctors(list || []);
+      // backend có thể trả mảng trực tiếp hoặc { success: true, data: [...] }
+      const data = Array.isArray(res.data) ? res.data : (res.data.data || res.data);
+      // Chỉ lấy những user có role 'doctor' đề phòng backend trả cả users
+      const onlyDoctors = (data || []).filter(u => u.role === 'doctor');
+      setDoctors(onlyDoctors);
     } catch (err) {
       console.error(err);
       setError('Không thể tải danh sách bác sĩ. Vui lòng thử lại.');
@@ -30,118 +31,66 @@ function AdminDoctors() {
     fetchDoctors();
   }, []);
 
-  // Toggle trạng thái active (khóa / kích hoạt)
-  const handleToggleActive = async (doctorId, currentActive) => {
+  const toggleActive = async (id, currentActive) => {
     try {
-      // Gọi backend để cập nhật trạng thái tài khoản
-      await axios.patch(`http://localhost:3001/api/admin/doctors/${doctorId}/toggle-active`, {
-        active: !currentActive
-      });
-      // Cập nhật nhanh ở client
-      setDoctors(prev => prev.map(d => (d._id === doctorId ? { ...d, active: !currentActive } : d)));
+      await axios.patch(`http://localhost:3001/api/admin/doctors/${id}/toggle-active`, { active: !currentActive });
+      setDoctors(prev => prev.map(d => d._id === id ? { ...d, active: !currentActive } : d));
     } catch (err) {
       console.error(err);
-      alert('Lỗi khi cập nhật trạng thái. Vui lòng thử lại.');
+      alert('Lỗi khi cập nhật trạng thái bác sĩ.');
     }
   };
-
-  // Xóa bác sĩ (tuỳ chọn)
-  const handleDelete = async (doctorId) => {
-    if (!window.confirm('Bạn có chắc muốn xóa tài khoản bác sĩ này? Hành động không thể hoàn tác.')) return;
-    try {
-      await axios.delete(`http://localhost:3001/api/admin/doctors/${doctorId}`);
-      setDoctors(prev => prev.filter(d => d._id !== doctorId));
-    } catch (err) {
-      console.error(err);
-      alert('Xóa thất bại. Thử lại.');
-    }
-  };
-
-  const filtered = doctors.filter(d => {
-    if (!query) return true;
-    const q = query.toLowerCase();
-    return (d.username && d.username.toLowerCase().includes(q)) ||
-           (d.email && d.email.toLowerCase().includes(q)) ||
-           (d.specialization && d.specialization.toLowerCase().includes(q));
-  });
 
   return (
     <div className="auth-container" style={{ alignItems: 'flex-start', paddingTop: 40 }}>
       <div className="auth-card" style={{ maxWidth: 1000, width: '95%' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <h2 style={{ color: '#d97706' }}>Quản lý Bác sĩ (Admin)</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 style={{ color: '#d97706' }}>Quản lý Bác sĩ</h2>
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="btn-secondary" onClick={() => navigate('/admin/create-doctor')} style={{ background: '#d97706' }}>
-              Tạo bác sĩ mới
+              Tạo bác sĩ
             </button>
-            <button className="btn-primary" onClick={fetchDoctors} style={{ background: '#2563eb' }}>
+            <button className="btn-primary" onClick={fetchDoctors}>
               Tải lại
             </button>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
-          <input className="auth-input" placeholder="Tìm theo tên, email, chuyên khoa..." value={query} onChange={e => setQuery(e.target.value)} />
-          <button className="btn-primary" onClick={() => setQuery('')} style={{ width: 120 }}>Xóa</button>
-        </div>
-
         {loading ? (
-          <p>Đang tải danh sách bác sĩ...</p>
+          <p>Đang tải danh sách...</p>
         ) : error ? (
           <p style={{ color: '#ef4444' }}>{error}</p>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ overflowX: 'auto', marginTop: 12 }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr style={{ textAlign: 'left', background: '#f8fafc' }}>
+                <tr style={{ background: '#f8fafc', textAlign: 'left' }}>
                   <th style={{ padding: 12 }}>Họ tên</th>
                   <th>Email</th>
                   <th>Chuyên khoa</th>
                   <th>Trạng thái</th>
-                  <th>Ngày tạo</th>
                   <th>Hành động</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.length === 0 ? (
-                  <tr><td colSpan="6" style={{ padding: 12 }}>Không tìm thấy bác sĩ nào.</td></tr>
-                ) : filtered.map(doc => (
+                {doctors.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" style={{ padding: 12 }}>Không tìm thấy bác sĩ.</td>
+                  </tr>
+                ) : doctors.map(doc => (
                   <tr key={doc._id} style={{ borderBottom: '1px solid #eef2ff' }}>
-                    <td style={{ padding: 12 }}>{doc.username}</td>
-                    <td>{doc.email}</td>
+                    <td style={{ padding: 12 }}>{doc.username || '-'}</td>
+                    <td>{doc.email || '-'}</td>
                     <td>{doc.specialization || '-'}</td>
-                    <td>
-                      {doc.active ? <span style={{ color: '#10b981' }}>Hoạt động</span> : <span style={{ color: '#ef4444' }}>Bị khoá</span>}
-                    </td>
-                    <td>{doc.createdAt ? new Date(doc.createdAt).toLocaleString() : '-'}</td>
+                    <td>{doc.active ? <span style={{ color: '#10b981' }}>Hoạt động</span> : <span style={{ color: '#ef4444' }}>Khóa</span>}</td>
                     <td>
                       <div style={{ display: 'flex', gap: 8 }}>
                         <button
                           className="btn-primary"
-                          onClick={() => handleToggleActive(doc._id, doc.active)}
-                          style={{
-                            background: doc.active ? '#f97316' : '#10b981',
-                            padding: '6px 10px',
-                            height: '36px'
-                          }}
+                          onClick={() => toggleActive(doc._id, !!doc.active)}
+                          style={{ background: doc.active ? '#f97316' : '#10b981', padding: '6px 10px', height: 36 }}
                         >
                           {doc.active ? 'Khóa' : 'Kích hoạt'}
-                        </button>
-
-                        <button
-                          className="btn-secondary"
-                          onClick={() => navigate(`/admin/doctor/${doc._id}`)}
-                          style={{ background: '#94a3b8', padding: '6px 10px', height: '36px' }}
-                        >
-                          Xem
-                        </button>
-
-                        <button
-                          className="btn-add"
-                          onClick={() => handleDelete(doc._id)}
-                          style={{ background: '#ef4444', padding: '6px 10px', height: '36px' }}
-                        >
-                          Xóa
                         </button>
                       </div>
                     </td>

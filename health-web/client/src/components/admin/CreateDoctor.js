@@ -12,7 +12,7 @@ function CreateDoctor() {
             await axios.post('http://localhost:3001/register', { ...form, role: 'doctor' });
             alert("Đã cấp tài khoản Bác sĩ thành công! 🎉");
         } catch (err) {
-            alert("Lỗi rồi Tân ơi, kiểm tra lại nhé!");
+            alert("Lỗi rồi bạn ơi, kiểm tra lại nhé!");
         }
     };
 

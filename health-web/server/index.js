@@ -14,14 +14,16 @@ mongoose.connect('mongodb://127.0.0.1:27017/health-web')
 
 // 2. Định nghĩa các Model (Schema)
 
-// Model Người dùng (Có thêm role mặc định)
+// Model Người dùng (Có thêm role mặc định, specialization và active)
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
     email: { type: String, unique: true, sparse: true },
     phone: { type: String, unique: true, sparse: true },
     cccd: { type: String, unique: true, sparse: true },
     password: { type: String, required: true },
-    role: { type: String, default: 'user' }
+    role: { type: String, default: 'user' },
+    specialization: { type: String, default: '' }, // chuyên khoa cho bác sĩ
+    active: { type: Boolean, default: true } // trạng thái kích hoạt/khóa tài khoản
 });
 const UserModel = mongoose.model("users", UserSchema);
 
@@ -101,6 +103,37 @@ app.get('/api/admin/stats', async (req, res) => {
         res.json({ userCount, doctorCount, recordCount });
     } catch (err) {
         res.status(500).json({ error: "Lỗi lấy thống kê" });
+    }
+});
+
+// Lấy danh sách bác sĩ (role === 'doctor'), loại bỏ password trước khi trả
+app.get('/api/admin/doctors', async (req, res) => {
+    try {
+        const doctors = await UserModel.find({ role: 'doctor' }).select('-password').sort({ createdAt: -1 }).lean();
+        // Trả về mảng trực tiếp để frontend dễ xử lý
+        res.json(doctors);
+    } catch (err) {
+        console.error('Lỗi lấy danh sách bác sĩ', err);
+        res.status(500).json({ success: false, message: 'Lỗi lấy danh sách bác sĩ' });
+    }
+});
+
+// Cập nhật trạng thái active của bác sĩ (body: { active: true/false })
+app.patch('/api/admin/doctors/:id/toggle-active', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { active } = req.body;
+        if (typeof active !== 'boolean') {
+            return res.status(400).json({ success: false, message: 'Trường active phải là boolean' });
+        }
+
+        const updated = await UserModel.findByIdAndUpdate(id, { active }, { new: true }).select('-password');
+        if (!updated) return res.status(404).json({ success: false, message: 'Không tìm thấy bác sĩ' });
+
+        res.json({ success: true, data: updated });
+    } catch (err) {
+        console.error('Lỗi cập nhật trạng thái bác sĩ', err);
+        res.status(500).json({ success: false, message: 'Lỗi cập nhật trạng thái bác sĩ' });
     }
 });
 
