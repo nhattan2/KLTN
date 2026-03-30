@@ -10,11 +10,15 @@ import AIConsult from './components/patient/AIConsult';
 import UpdateHealth from './components/patient/UpdateHealth';
 import CreateMedicalRecord from './components/patient/CreateMedicalRecord';
 import MyRecords from './components/patient/MyRecords';
+import BookAppointment from './components/patient/BookAppointment';
+import PaymentHistory from './components/patient/PaymentHistory';
 
 // Import từ thư mục admin 
 import CreateDoctor from './components/admin/CreateDoctor';
 import AdminStats from './components/admin/AdminStats';
 import AdminDoctors from './components/admin/AdminDoctors';
+import AdminServices from './components/admin/AdminServices';
+import AdminPaymentStats from './components/admin/AdminPaymentStats';
 
 // Import từ thư mục doctor 
 import DoctorHome from './components/doctor/DoctorHome';
@@ -33,12 +37,16 @@ function App() {
         <Route path="/update-health" element={<UpdateHealth />} />
         <Route path="/create-record" element={<CreateMedicalRecord />} />
         <Route path="/my-records" element={<MyRecords />} />
+        <Route path="/book-appointment" element={<BookAppointment />} />
+        <Route path="/payment/history" element={<PaymentHistory />} />
 
 
         {/* Tuyến đường cho Admin */}
         <Route path="/admin/create-doctor" element={<CreateDoctor />} />
         <Route path="/admin/stats" element={<AdminStats />} />
         <Route path="/admin/doctors" element={<AdminDoctors />} />
+        <Route path="/admin/services" element={<AdminServices />} />
+        <Route path="/admin/payment-stats" element={<AdminPaymentStats />} />
 
         {/* Tuyến đường cho Bác sĩ */}
         <Route path="/doctor/home" element={<DoctorHome />} />

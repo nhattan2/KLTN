@@ -57,6 +57,78 @@ const HealthSchema = new mongoose.Schema({
 });
 const HealthModel = mongoose.model("health_records", HealthSchema);
 
+// Model Dịch vụ khám bệnh
+const ServiceSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    description: String,
+    price: { type: Number, required: true },
+    category: String,
+    active: { type: Boolean, default: true },
+    createdAt: { type: Date, default: Date.now }
+});
+const ServiceModel = mongoose.model("services", ServiceSchema);
+
+// Model Lịch hẹn khám
+const AppointmentSchema = new mongoose.Schema({
+    patientUsername: { type: String, required: true },
+    doctorId: String,
+    doctorName: String,
+    serviceId: String,
+    serviceName: String,
+    servicePrice: Number,
+    appointmentDate: { type: String, required: true },
+    timeSlot: { type: String, required: true },
+    status: {
+        type: String,
+        default: 'confirmed',
+        enum: ['pending', 'confirmed', 'completed', 'cancelled']
+    },
+    createdAt: { type: Date, default: Date.now }
+});
+const AppointmentModel = mongoose.model("appointments", AppointmentSchema);
+
+// Model Thanh toán
+const PaymentSchema = new mongoose.Schema({
+    appointmentId: String,
+    patientUsername: String,
+    serviceName: String,
+    doctorName: String,
+    amount: { type: Number, required: true },
+    method: {
+        type: String,
+        default: 'online',
+        enum: ['online', 'cash']
+    },
+    status: {
+        type: String,
+        default: 'success',
+        enum: ['pending', 'success', 'failed']
+    },
+    transactionId: String,
+    paidAt: { type: Date, default: Date.now },
+    createdAt: { type: Date, default: Date.now }
+});
+const PaymentModel = mongoose.model("payments", PaymentSchema);
+
+// Seed dữ liệu mẫu dịch vụ khi khởi động
+async function seedServices() {
+    const count = await ServiceModel.countDocuments();
+    if (count === 0) {
+        await ServiceModel.insertMany([
+            { name: "Khám tổng quát", description: "Khám sức khỏe tổng quát, kiểm tra các chỉ số cơ bản", price: 200000, category: "kham-tong-quat" },
+            { name: "Tư vấn chuyên khoa", description: "Tư vấn với bác sĩ chuyên khoa theo yêu cầu", price: 350000, category: "chuyen-khoa" },
+            { name: "Xét nghiệm máu", description: "Xét nghiệm công thức máu, đường huyết, mỡ máu", price: 150000, category: "xet-nghiem" },
+            { name: "Siêu âm", description: "Siêu âm ổ bụng, tuyến giáp, tim mạch", price: 300000, category: "sieu-am" },
+            { name: "Đo điện tim (ECG)", description: "Đo và phân tích điện tâm đồ", price: 180000, category: "xet-nghiem" },
+            { name: "Khám nội tiết", description: "Khám và tư vấn các bệnh lý nội tiết", price: 400000, category: "chuyen-khoa" },
+            { name: "Khám da liễu", description: "Khám và điều trị các bệnh lý về da", price: 250000, category: "chuyen-khoa" },
+            { name: "Chụp X-quang", description: "Chụp X-quang phổi, xương, khớp", price: 220000, category: "xet-nghiem" }
+        ]);
+        console.log("✅ Đã tạo dữ liệu mẫu dịch vụ khám bệnh!");
+    }
+}
+seedServices();
+
 // 3. API Đăng nhập & Đăng ký
 
 app.post('/register', (req, res) => {
@@ -227,6 +299,225 @@ app.get('/api/get-medical-record/:username', async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ error: "Lỗi Server" });
+    }
+});
+
+// ============================================
+// 7. API DỊCH VỤ KHÁM BỆNH
+// ============================================
+
+// Lấy danh sách dịch vụ (active)
+app.get('/api/services', async (req, res) => {
+    try {
+        const services = await ServiceModel.find({ active: true }).sort({ price: 1 });
+        res.json(services);
+    } catch (err) {
+        res.status(500).json({ error: "Lỗi lấy danh sách dịch vụ" });
+    }
+});
+
+// Lấy tất cả dịch vụ (cho admin, kể cả inactive)
+app.get('/api/admin/services', async (req, res) => {
+    try {
+        const services = await ServiceModel.find().sort({ createdAt: -1 });
+        res.json(services);
+    } catch (err) {
+        res.status(500).json({ error: "Lỗi lấy danh sách dịch vụ" });
+    }
+});
+
+// Admin tạo dịch vụ
+app.post('/api/admin/services', async (req, res) => {
+    try {
+        const service = await ServiceModel.create(req.body);
+        res.json({ success: true, data: service });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Lỗi tạo dịch vụ" });
+    }
+});
+
+// Admin cập nhật dịch vụ
+app.put('/api/admin/services/:id', async (req, res) => {
+    try {
+        const updated = await ServiceModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!updated) return res.status(404).json({ success: false, message: "Không tìm thấy" });
+        res.json({ success: true, data: updated });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Lỗi cập nhật" });
+    }
+});
+
+// Admin toggle active dịch vụ
+app.patch('/api/admin/services/:id/toggle', async (req, res) => {
+    try {
+        const service = await ServiceModel.findById(req.params.id);
+        if (!service) return res.status(404).json({ success: false });
+        service.active = !service.active;
+        await service.save();
+        res.json({ success: true, data: service });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Lỗi cập nhật" });
+    }
+});
+
+// Admin xóa dịch vụ
+app.delete('/api/admin/services/:id', async (req, res) => {
+    try {
+        await ServiceModel.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: "Đã xóa dịch vụ" });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Lỗi xóa" });
+    }
+});
+
+// ============================================
+// 8. API ĐẶT LỊCH HẸN & THANH TOÁN
+// ============================================
+
+// Lấy danh sách bác sĩ đang hoạt động
+app.get('/api/doctors-available', async (req, res) => {
+    try {
+        const doctors = await UserModel.find({ role: 'doctor', active: true }).select('-password');
+        res.json(doctors);
+    } catch (err) {
+        res.status(500).json({ error: "Lỗi lấy danh sách bác sĩ" });
+    }
+});
+
+// Bệnh nhân đặt lịch + thanh toán giả lập
+app.post('/api/book-appointment', async (req, res) => {
+    try {
+        const { patientUsername, doctorId, doctorName, serviceId, serviceName, servicePrice, appointmentDate, timeSlot, paymentMethod } = req.body;
+
+        // 1. Tạo lịch hẹn
+        const appointment = await AppointmentModel.create({
+            patientUsername,
+            doctorId,
+            doctorName,
+            serviceId,
+            serviceName,
+            servicePrice,
+            appointmentDate,
+            timeSlot,
+            status: 'confirmed'
+        });
+
+        // 2. Tạo thanh toán giả lập (luôn thành công)
+        const transactionId = 'TXN' + Date.now() + Math.floor(Math.random() * 1000);
+        const payment = await PaymentModel.create({
+            appointmentId: appointment._id.toString(),
+            patientUsername,
+            serviceName,
+            doctorName,
+            amount: servicePrice,
+            method: paymentMethod || 'online',
+            status: 'success',
+            transactionId,
+            paidAt: new Date()
+        });
+
+        res.json({
+            success: true,
+            message: "Đặt lịch và thanh toán thành công!",
+            appointment,
+            payment
+        });
+    } catch (err) {
+        console.error("Lỗi đặt lịch:", err);
+        res.status(500).json({ success: false, message: "Lỗi đặt lịch" });
+    }
+});
+
+// Lấy lịch hẹn của bệnh nhân
+app.get('/api/appointments/:username', async (req, res) => {
+    try {
+        const appointments = await AppointmentModel.find({ patientUsername: req.params.username }).sort({ createdAt: -1 });
+        res.json(appointments);
+    } catch (err) {
+        res.status(500).json({ error: "Lỗi lấy lịch hẹn" });
+    }
+});
+
+// Lấy lịch hẹn cho bác sĩ
+app.get('/api/doctor/appointments/:doctorId', async (req, res) => {
+    try {
+        const appointments = await AppointmentModel.find({ doctorId: req.params.doctorId }).sort({ appointmentDate: -1 });
+        res.json(appointments);
+    } catch (err) {
+        res.status(500).json({ error: "Lỗi lấy lịch hẹn bác sĩ" });
+    }
+});
+
+// Cập nhật trạng thái lịch hẹn
+app.patch('/api/appointments/:id/status', async (req, res) => {
+    try {
+        const { status } = req.body;
+        const updated = await AppointmentModel.findByIdAndUpdate(req.params.id, { status }, { new: true });
+        if (!updated) return res.status(404).json({ success: false, message: "Không tìm thấy lịch hẹn" });
+        res.json({ success: true, data: updated });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Lỗi cập nhật" });
+    }
+});
+
+// Hủy lịch hẹn (cập nhật cả payment)
+app.patch('/api/appointments/:id/cancel', async (req, res) => {
+    try {
+        const appointment = await AppointmentModel.findByIdAndUpdate(req.params.id, { status: 'cancelled' }, { new: true });
+        if (!appointment) return res.status(404).json({ success: false });
+        // Cập nhật payment thành failed
+        await PaymentModel.findOneAndUpdate({ appointmentId: req.params.id }, { status: 'failed' });
+        res.json({ success: true, data: appointment });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Lỗi hủy lịch hẹn" });
+    }
+});
+
+// ============================================
+// 9. API LỊCH SỬ THANH TOÁN
+// ============================================
+
+// Lịch sử thanh toán của bệnh nhân
+app.get('/api/payments/:username', async (req, res) => {
+    try {
+        const payments = await PaymentModel.find({ patientUsername: req.params.username }).sort({ createdAt: -1 });
+        res.json(payments);
+    } catch (err) {
+        res.status(500).json({ error: "Lỗi lấy lịch sử thanh toán" });
+    }
+});
+
+// Admin: Thống kê doanh thu
+app.get('/api/admin/payment-stats', async (req, res) => {
+    try {
+        const totalPayments = await PaymentModel.countDocuments({ status: 'success' });
+        const totalRevenue = await PaymentModel.aggregate([
+            { $match: { status: 'success' } },
+            { $group: { _id: null, total: { $sum: '$amount' } } }
+        ]);
+        const totalAppointments = await AppointmentModel.countDocuments();
+        const cancelledAppointments = await AppointmentModel.countDocuments({ status: 'cancelled' });
+
+        // Doanh thu theo dịch vụ
+        const revenueByService = await PaymentModel.aggregate([
+            { $match: { status: 'success' } },
+            { $group: { _id: '$serviceName', total: { $sum: '$amount' }, count: { $sum: 1 } } },
+            { $sort: { total: -1 } }
+        ]);
+
+        // Thanh toán gần đây (10 giao dịch)
+        const recentPayments = await PaymentModel.find({ status: 'success' }).sort({ createdAt: -1 }).limit(10);
+
+        res.json({
+            totalPayments,
+            totalRevenue: totalRevenue[0]?.total || 0,
+            totalAppointments,
+            cancelledAppointments,
+            revenueByService,
+            recentPayments
+        });
+    } catch (err) {
+        res.status(500).json({ error: "Lỗi lấy thống kê" });
     }
 });
 
