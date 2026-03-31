@@ -41,6 +41,8 @@ function Dashboard() {
                             <div className="nav-item" style={{ color: '#d97706' }} onClick={() => navigate('/admin/create-doctor')}>Tạo tài khoản BS</div>
                             <div className="nav-item" style={{ color: '#d97706' }} onClick={() => navigate('/admin/stats')}>Thống kê hệ thống</div>
                             <div className="nav-item" style={{ color: '#d97706' }} onClick={() => navigate('/admin/doctors')}>Quản lý Bác sĩ</div>
+                            <div className="nav-item" style={{ color: '#d97706' }} onClick={() => navigate('/admin/services')}>🏥 Quản lý Dịch vụ</div>
+                            <div className="nav-item" style={{ color: '#d97706' }} onClick={() => navigate('/admin/payment-stats')}>💰 Thống kê Doanh thu</div>
                         </>
                     )}
 
@@ -59,6 +61,8 @@ function Dashboard() {
                             <div className="nav-item" onClick={() => navigate('/ai-consult')}>Tư vấn AI Gemini</div>
                             <div className="nav-item" onClick={() => navigate('/my-records')}>Hồ sơ của tôi</div>
                             <div className="nav-item" onClick={() => navigate('/create-record')}>Tạo hồ sơ bệnh án</div>
+                            <div className="nav-item" style={{ color: '#2563eb' }} onClick={() => navigate('/book-appointment')}>📋 Đặt lịch khám</div>
+                            <div className="nav-item" style={{ color: '#2563eb' }} onClick={() => navigate('/payment/history')}>💳 Lịch sử thanh toán</div>
                         </>
                     )}
 
