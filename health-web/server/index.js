@@ -8,13 +8,18 @@ app.use(express.json());
 app.use(cors());
 
 // 1. Kết nối MongoDB Local
-mongoose.connect('mongodb://127.0.0.1:27017/health-web')
-    .then(() => console.log("✅ Hệ thống Medicare đã kết nối Database thành công!"))
-    .catch(err => console.log("❌ Lỗi kết nối Database: ", err));
+
+/* mongoose.connect('mongodb://127.0.0.1:27017/health-web')
+    .then(() => console.log("✅ Đã kết nối Database thành công"))
+    .catch(err => console.log("❌ Lỗi Local: ", err)); */
+
+const cloudURI = "mongodb://mongo:QxTQOfYWbxULrlVqbHoeBeeOhnAdpsFc@interchange.proxy.rlwy.net:29043";
+
+mongoose.connect(cloudURI)
+    .then(() => console.log("QUÁ TUYỆT VỜI"))
+    .catch(err => console.log("Lỗi kết nối: ", err));
 
 // 2. Định nghĩa các Model (Schema)
-
-// Model Người dùng (Có thêm role mặc định, specialization và active)
 const UserSchema = new mongoose.Schema({
     username: { type: String, required: true },
     email: { type: String, unique: true, sparse: true },
